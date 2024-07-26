@@ -3,13 +3,20 @@ import { setContext } from "@apollo/client/link/context";
 
 // Create an http link
 const httpLink = createHttpLink({
-  uri: "https://0kadddxyh3.execute-api.us-east-1.amazonaws.com",
+  uri: "https://0kadddxyh3.execute-api.us-east-1.amazonaws.com/graphql",
 });
 
 // Create a function to set the auth context
 const authLink = setContext((_, { headers }) => {
   // Get the token from the environment variables
   const token = process.env.BLUE_BOX_MOVIES_API_TOKEN;
+
+  console.log("Apollo Client Config:", {
+    uri: "https://0kadddxyh3.execute-api.us-east-1.amazonaws.com/graphql",
+    headers: {
+      authorization: `Bearer ${token}`,
+    },
+  });
 
   // Return the headers to the context so httpLink can read them
   return {
