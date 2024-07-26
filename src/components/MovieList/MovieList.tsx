@@ -6,9 +6,11 @@ import { Movie } from "../../types/movies";
 const GET_MOVIES = gql`
   query GetMovies {
     movies {
-      id
-      title
-      summary
+      nodes {
+        id
+        title
+        summary
+      }
     }
   }
 `;
@@ -17,9 +19,19 @@ export default function MovieList() {
   const { loading, error, data } = useQuery(GET_MOVIES);
 
   if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
+  if (error) {
+    // TODO: remove before production
+    console.error("GraphQL Error:", error);
+    console.error("Network Error:", error.networkError);
+    if (error.graphQLErrors) {
+      error.graphQLErrors.forEach((graphQLError) =>
+        console.error("GraphQL Error:", graphQLError)
+      );
+    }
+    return <p>Error: {error.message}</p>;
+  }
 
-  const movies: Movie[] = data?.movies || [];
+  const movies = data?.movies?.nodes || [];
 
   return (
     <>
