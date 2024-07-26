@@ -15,7 +15,7 @@ const httpLink = createHttpLink({
 // Create a function to set the auth context
 const authLink = setContext((_, { headers }) => {
   // Get the token from the environment variables
-  const token = process.env.NEXT_PUBLIC_BBMOVIES_API_TOKEN;
+  const token = process.env.AUTH_TOKEN;
 
   // Return the headers to the context so httpLink can read them
   return {
@@ -26,6 +26,7 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
+//TODO: Remove this before production
 const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors)
     graphQLErrors.forEach(({ message, locations, path }) =>
