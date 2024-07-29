@@ -1,46 +1,71 @@
-"use client";
-
-import { gql, useQuery } from "@apollo/client";
-import { Movie } from "../../types/movies";
+import { gql } from "@apollo/client";
+import { Movie, MoviesData, MovieListProps } from "../../types/movies";
+import client from "../../lib/apollo-client";
+import Pagination from "../Pagination/Pagination";
 
 const GET_MOVIES = gql`
-  query GetMovies {
-    movies {
+  query GetMovies($page: Int!, $perPage: Int!) {
+    movies(pagination: { page: $page, perPage: $perPage }) {
       nodes {
         id
         title
         summary
       }
+      pagination {
+        page
+        perPage
+        totalPages
+      }
     }
   }
 `;
 
-export default function MovieList() {
-  const { loading, error, data } = useQuery(GET_MOVIES);
-
-  if (loading) return <p>Loading...</p>;
-  if (error) {
-    // TODO: remove before production
-    console.error("GraphQL Error:", error);
-    console.error("Network Error:", error.networkError);
-    if (error.graphQLErrors) {
-      error.graphQLErrors.forEach((graphQLError) =>
-        console.error("GraphQL Error:", graphQLError)
-      );
+async function getMovies(
+  page: number = 1,
+  perPage: number = 10
+): Promise<MoviesData> {
+  try {
+    const { data } = await client.query<{ movies: MoviesData }>({
+      query: GET_MOVIES,
+      variables: { page, perPage },
+    });
+    console.log("API Response:", data);
+    return data.movies;
+  } catch (error) {
+    console.error("Error fetching movies:", error);
+    if ((error as { networkError: Error }).networkError) {
+      const networkError: Error = (error as { networkError: Error })
+        .networkError;
+      const statusCode: Error = (error as { statusCode: Error }).statusCode;
+      console.error("Network error:", networkError);
+      console.error("Status:", statusCode);
+      console.error("Result:", (networkError as any).result);
     }
-    return <p>Error: {error.message}</p>;
+    if ((error as any).graphQLErrors) {
+      console.error("GraphQL errors:", (error as any).graphQLErrors);
+    }
+    return { nodes: [], pagination: { page: 1, perPage: 10, totalPages: 1 } };
   }
+}
 
-  const movies = data?.movies?.nodes || [];
+export default async function MovieList({ page, perPage }: MovieListProps) {
+  const { nodes: movies, pagination } = await getMovies(page, perPage);
 
   return (
     <>
-      {movies.map((movie) => (
-        <div key={movie.id} className="p-4 border border-gray-200 rounded-lg">
+      {movies.map((movie: Movie) => (
+        <div
+          key={movie.id}
+          className="mb-4 p-4 border border-gray-900 rounded-lg"
+        >
           <h2>{movie.title}</h2>
           <p>{movie.summary}</p>
         </div>
       ))}
+      <Pagination
+        currentPage={pagination.page}
+        totalPages={pagination.totalPages}
+      />
     </>
   );
 }
