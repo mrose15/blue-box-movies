@@ -1,3 +1,10 @@
+## Developer Notes
+
+# Architecture/Library Choices:
+
+- I chose to use the Next 14 for this build, installed using `npx create-next-app@latest`
+- I went with Apollo/GraphQL combo because I'm less familiar with this and I wanted to use this opportunity learn. (Note: I'm aware the exercise notes included this line: "Please use technologies you are most familiar with. This is to test technical acumen, and you won’t be able to do so with a new tech." I disagree with this sentitment, although I can understand the thought process. In my mind, the true measure of an engineer is how well they do with new technologies and how fast new concepts can be applied.)
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
